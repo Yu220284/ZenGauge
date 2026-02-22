@@ -102,9 +102,9 @@ export default function MyVideosPage() {
               {videos.map((video) => (
                 <Card key={video.id} className="hover:bg-primary/5 transition-colors">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-4">
-                      <Link href={`/video/${video.id}`} className="flex-1">
-                        <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <Link href={`/video/${video.id}`} className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3">
                           <div className="relative w-32 h-20 rounded overflow-hidden flex-shrink-0">
                             {video.imageUrl || thumbnails[video.id] ? (
                               <img src={video.imageUrl || thumbnails[video.id]} alt={video.title} className="w-full h-full object-cover" />

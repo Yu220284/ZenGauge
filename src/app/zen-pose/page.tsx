@@ -8,8 +8,8 @@ import Link from 'next/link'
 
 const POSES = [
   { id: 'tree', name: 'Tree Pose', description: 'Balance on one leg', demoUrl: 'https://video-product.cdn.minimax.io/inference_output/video/2026-02-22/0dd5d9b9-92a7-4d55-a8e4-643ae84fc471/output.mp4' },
-  { id: 'warrior', name: 'Warrior Pose', description: 'Strong standing pose', demoUrl: 'https://video-product.cdn.minimax.io/inference_output/video/2026-02-22/2cdb4a17-3a73-4c22-9918-4696269a8a58/output.mp4' },
-  { id: 'downward-dog', name: 'Downward Dog', description: 'Inverted V-shape' },
+  { id: 'warrior', name: 'Warrior Pose', description: 'Strong standing pose' },
+  { id: 'downward-dog', name: 'Downward Dog', description: 'Inverted V-shape', demoUrl: 'https://video-product.cdn.minimax.io/inference_output/video/2026-02-22/2cdb4a17-3a73-4c22-9918-4696269a8a58/output.mp4' },
   { id: 'child', name: 'Child Pose', description: 'Resting position' },
 ]
 
@@ -19,36 +19,37 @@ export default function ZenPosePage() {
   const [loadingMessage, setLoadingMessage] = useState('')
   const [silhouetteUrl, setSilhouetteUrl] = useState<string | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
-  const [cameraPermission, setCameraPermission] = useState<'prompt' | 'granted' | 'denied'>('prompt')
-  const [opacity, setOpacity] = useState(30)
+  const [cameraError, setCameraError] = useState('')
   const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    if (cameraActive && typeof navigator !== 'undefined' && navigator.mediaDevices) {
-      console.log('Requesting camera access...')
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-        .then(stream => {
-          console.log('Camera access granted')
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream
-            videoRef.current.play().catch(e => console.error('Video play error:', e))
-          }
+    if (!cameraActive) return
+
+    let mounted = true
+    let stream: MediaStream | null = null
+
+    const initCamera = async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user' }
         })
-        .catch(err => {
-          console.error('Camera error:', err)
-          alert('カメラへのアクセスが必要です。ブラウザの設定でカメラを許可してください。')
-          setCameraActive(false)
-        })
+
+        if (mounted && videoRef.current) {
+          videoRef.current.srcObject = stream
+          await videoRef.current.play()
+        }
+      } catch (err: any) {
+        console.error('Camera error:', err)
+        setCameraError(err.message || 'Camera access denied. Please allow camera access in your browser settings.')
+      }
     }
 
+    initCamera()
+
     return () => {
-      if (videoRef.current?.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
-        tracks.forEach(track => {
-          console.log('Stopping camera track')
-          track.stop()
-        })
+      mounted = false
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop())
       }
     }
   }, [cameraActive])
@@ -111,7 +112,6 @@ export default function ZenPosePage() {
   }
 
   if (cameraActive && silhouetteUrl) {
-    console.log('Rendering camera view with:', { cameraActive, silhouetteUrl })
     return (
       <div className="fixed inset-0 bg-black">
         <div className="relative w-full h-full" style={{ border: '4px solid #87CEEB' }}>
@@ -120,7 +120,7 @@ export default function ZenPosePage() {
             <p className="text-sm opacity-80">Match your body to the silhouette</p>
           </div>
 
-          <div className="flex h-full gap-4 p-4 pt-20">
+          <div className="flex flex-col md:flex-row h-full gap-4 p-4 pt-20">
             <div className="flex-1 relative rounded-lg overflow-hidden">
               <p className="absolute top-2 left-2 text-white text-sm font-bold z-10 bg-black/50 px-2 py-1 rounded">AI Silhouette</p>
               <video
@@ -133,15 +133,23 @@ export default function ZenPosePage() {
               />
             </div>
             
-            <div className="flex-1 relative rounded-lg overflow-hidden">
+            <div className="flex-1 relative rounded-lg overflow-hidden bg-gray-900">
               <p className="absolute top-2 left-2 text-white text-sm font-bold z-10 bg-black/50 px-2 py-1 rounded">Your Camera</p>
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
                 muted
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover scale-x-[-1]"
               />
+              {cameraError && (
+                <div className="absolute inset-0 flex items-center justify-center text-white text-sm p-4 text-center">
+                  <div>
+                    <p className="mb-2">Camera Error:</p>
+                    <p className="text-xs">{cameraError}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -150,6 +158,7 @@ export default function ZenPosePage() {
               setCameraActive(false)
               setSilhouetteUrl(null)
               setSelectedPose(null)
+              setCameraError('')
             }}
             className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
             variant="secondary"
