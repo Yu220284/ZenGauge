@@ -15,7 +15,6 @@ export default function MyVideosPage() {
   const [thumbnails, setThumbnails] = useState<{[key: number]: string}>({})
 
   useEffect(() => {
-    initializeCreatedVideos()
     loadVideos()
   }, [])
 
@@ -39,22 +38,6 @@ export default function MyVideosPage() {
       canvas.getContext('2d')?.drawImage(video, 0, 0)
       const thumbnail = canvas.toDataURL('image/jpeg')
       setThumbnails(prev => ({ ...prev, [videoId]: thumbnail }))
-    }
-  }
-
-  const initializeCreatedVideos = () => {
-    const videoId = 1740113760000
-    const key = `video_${videoId}`
-    if (!localStorage.getItem(key)) {
-      const video = {
-        id: videoId,
-        title: 'Created Zen Video',
-        videoUrl: '/videos/created_zen_1740113760000.mp4',
-        pose: 'Custom',
-        difficulty: 'All Levels',
-        createdAt: videoId
-      }
-      localStorage.setItem(key, JSON.stringify(video))
     }
   }
 

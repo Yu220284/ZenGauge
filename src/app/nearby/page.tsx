@@ -13,7 +13,7 @@ import { User, NearbyUser, YogaSession } from '@/lib/types/matching'
 const mockCurrentUser: User = {
   id: '1',
   name: 'You',
-  avatar: '/avatars/user.jpg',
+  avatar: '',
   location: { lat: 35.6762, lng: 139.6503 },
   musicTastes: ['Jazz', 'Classical', 'Ambient'],
   freeTime: [
@@ -27,7 +27,7 @@ const mockUsers: User[] = [
   {
     id: '2',
     name: 'Sarah',
-    avatar: '/avatars/tanaka.jpg',
+    avatar: '',
     location: { lat: 35.6812, lng: 139.6553 },
     musicTastes: ['Jazz', 'Bossa Nova', 'Classical'],
     freeTime: [
@@ -38,7 +38,7 @@ const mockUsers: User[] = [
   {
     id: '3',
     name: 'Emma',
-    avatar: '/avatars/sato.jpg',
+    avatar: '',
     location: { lat: 35.6712, lng: 139.6453 },
     musicTastes: ['Ambient', 'Classical', 'New Age'],
     freeTime: [

@@ -45,19 +45,29 @@ export default function Home() {
     const days = []
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     
+    // Get activity data from localStorage
+    const activityKey = 'weekly_activity'
+    let activityData: {[key: string]: boolean} = {}
+    try {
+      const stored = localStorage.getItem(activityKey)
+      if (stored) activityData = JSON.parse(stored)
+    } catch (e) {}
+    
     for (let i = 0; i < 7; i++) {
       const date = new Date(monday)
       date.setDate(monday.getDate() + i)
       const isToday = date.toDateString() === today.toDateString()
       const isPast = date < today && !isToday
-      const hasSession = isPast || isToday ? Math.random() > 0.3 : false
+      const dateKey = date.toDateString()
+      const hasSession = activityData[dateKey] || false
       
       days.push({
         date: date.getDate(),
         day: dayNames[i],
         hasSession,
         isToday,
-        isPast
+        isPast,
+        dateKey
       })
     }
     return days
