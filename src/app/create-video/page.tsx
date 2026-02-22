@@ -28,6 +28,15 @@ export default function CreateVideoPage() {
   const handleGenerate = async () => {
     if (!musicGenre || !pose || !difficulty || !gender || !age || !location || !speed) return
 
+    // Check cache first
+    const cacheKey = `video_cache_${musicGenre}_${pose}_${difficulty}_${gender}_${age}_${location}_${speed}`
+    const cached = localStorage.getItem(cacheKey)
+    if (cached) {
+      const cachedData = JSON.parse(cached)
+      router.push(`/video/${cachedData.videoId}`)
+      return
+    }
+
     setIsGenerating(true)
     setProgress(10)
     setStatus('Generating script...')
@@ -58,6 +67,9 @@ export default function CreateVideoPage() {
         setProgress(100)
         setStatus('Complete!')
         localStorage.setItem(`video_${data.videoId}`, JSON.stringify(data.videoData))
+        // Save cache
+        const cacheKey = `video_cache_${musicGenre}_${pose}_${difficulty}_${gender}_${age}_${location}_${speed}`
+        localStorage.setItem(cacheKey, JSON.stringify({ videoId: data.videoId }))
         // Automatically redirect to video page
         router.push(`/video/${data.videoId}`)
       } else {
