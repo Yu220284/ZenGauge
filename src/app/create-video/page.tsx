@@ -47,7 +47,9 @@ export default function CreateVideoPage() {
       if (!response.ok) {
         if (data.requiresPassword) {
           setShowPasswordPrompt(true)
-          setStatus('')
+          setIsGenerating(false)
+          alert(data.error)
+          return
         }
         throw new Error(data.error || 'Failed to generate video')
       }
