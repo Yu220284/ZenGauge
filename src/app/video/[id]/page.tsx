@@ -227,7 +227,6 @@ export default function VideoPage() {
           </Button>
         </div>
       ) : (
-      ) : (
         <>
           <div className="relative h-full w-full">
             {video.imageUrl ? (
@@ -361,8 +360,6 @@ export default function VideoPage() {
             </div>
           )}
         </>
-      )}
-
       )}
     </div>
   )
