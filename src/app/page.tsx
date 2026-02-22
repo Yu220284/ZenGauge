@@ -78,9 +78,14 @@ export default function Home() {
           <div className="flex justify-center mb-4">
             <Image src="/ZenGauge_icon.png" alt="ZenGauge" width={200} height={200} className="rounded-2xl" />
           </div>
-          <Link href="/create-video">
-            <Button size="lg" className="mb-4">Create Custom Video</Button>
-          </Link>
+          <div className="flex gap-2 justify-center mb-4">
+            <Link href="/zen-pose">
+              <Button size="lg" variant="default">ZenGauge Pose</Button>
+            </Link>
+            <Link href="/create-video">
+              <Button size="lg" variant="outline">Create Video</Button>
+            </Link>
+          </div>
           <p className="text-lg text-muted-foreground">Find your inner peace</p>
         </div>
 

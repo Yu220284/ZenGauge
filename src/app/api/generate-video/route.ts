@@ -95,10 +95,11 @@ async function generateVideo(prompt: string, pose: string, gender: string, age: 
     
     // Step 2: Poll for video generation result
     let attempts = 0
-    const maxAttempts = 120
+    const maxAttempts = 60
     
     while (attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 5000))
+      const delay = attempts < 10 ? 3000 : attempts < 30 ? 5000 : 8000
+      await new Promise(resolve => setTimeout(resolve, delay))
       attempts++
       
       console.log(`Polling attempt ${attempts}/${maxAttempts}...`)
