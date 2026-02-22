@@ -95,7 +95,7 @@ export default function Home() {
               <Button size="lg" variant="outline">Create Video</Button>
             </Link>
           </div>
-          <p className="text-lg text-muted-foreground">Find your inner peace</p>
+          <p className="text-lg text-muted-foreground">Find your inner peace ✨</p>
         </div>
 
         <div className="max-w-2xl mx-auto space-y-6">
