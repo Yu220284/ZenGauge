@@ -93,8 +93,8 @@ export default function Home() {
             <div className="grid grid-cols-3 gap-3">
               <Card>
                 <CardContent className="p-3 text-center">
-                  <div className="text-xl font-bold text-primary">{weeklyDays}日</div>
-                  <div className="text-xs text-muted-foreground">今週</div>
+                  <div className="text-xl font-bold text-primary">{weeklyDays} days</div>
+                  <div className="text-xs text-muted-foreground">This Week</div>
                 </CardContent>
               </Card>
               <Card>
@@ -104,20 +104,20 @@ export default function Home() {
                     <div className="text-xl font-bold text-primary">{weeklyStreak}</div>
                     {isPerfectWeek && <span className="text-sm">💎</span>}
                   </div>
-                  <div className="text-xs text-muted-foreground">連続週</div>
+                  <div className="text-xs text-muted-foreground">Week Streak</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-3 text-center">
-                  <div className="text-xl font-bold text-primary">{weeklyMinutes}分</div>
-                  <div className="text-xs text-muted-foreground">週間合計</div>
+                  <div className="text-xl font-bold text-primary">{weeklyMinutes} min</div>
+                  <div className="text-xs text-muted-foreground">Weekly Total</div>
                 </CardContent>
               </Card>
             </div>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-3">週間アクティビティ</h2>
+            <h2 className="text-lg font-bold mb-3">Weekly Activity</h2>
             <Card>
               <CardContent className="p-4">
                 <div className="grid grid-cols-7 gap-2">
@@ -173,7 +173,7 @@ export default function Home() {
                         size="icon"
                         onClick={(e) => {
                           e.preventDefault()
-                          if (confirm('このビデオを削除しますか？')) {
+                          if (confirm('Delete this video?')) {
                             deleteVideo(video.id)
                           }
                         }}

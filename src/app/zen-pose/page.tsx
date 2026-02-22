@@ -77,7 +77,7 @@ export default function ZenPosePage() {
 
     setLoading(true)
     setSelectedPose(pose.name)
-    setLoadingMessage('AI動画を生成中... (1-3分かかります)')
+    setLoadingMessage('Generating AI video... (1-3 minutes)')
 
     try {
       console.log('Requesting pose generation for:', pose.name)
@@ -95,7 +95,7 @@ export default function ZenPosePage() {
         throw new Error(data.error || 'Failed to generate pose')
       }
 
-      setLoadingMessage('動画を読み込み中...')
+      setLoadingMessage('Loading video...')
       console.log('Setting silhouetteUrl:', data.videoUrl)
       localStorage.setItem(cacheKey, data.videoUrl)
       setSilhouetteUrl(data.videoUrl)
@@ -104,7 +104,7 @@ export default function ZenPosePage() {
       console.log('State updated - should show camera view')
     } catch (error) {
       console.error('Failed to generate pose:', error)
-      alert('ポーズの生成に失敗しました: ' + (error instanceof Error ? error.message : '不明なエラー'))
+      alert('Failed to generate pose: ' + (error instanceof Error ? error.message : 'Unknown error'))
     } finally {
       setLoading(false)
       setLoadingMessage('')
