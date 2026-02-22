@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Play, Flame } from 'lucide-react'
+import { Play, Flame, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 export default function Home() {
   const [savedVideos, setSavedVideos] = useState<any[]>([])
 
-  useEffect(() => {
+  const loadVideos = () => {
     const videos = []
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
@@ -24,7 +24,16 @@ export default function Home() {
     }
     videos.sort((a, b) => b.id - a.id)
     setSavedVideos(videos)
+  }
+
+  useEffect(() => {
+    loadVideos()
   }, [])
+
+  const deleteVideo = (videoId: number) => {
+    localStorage.removeItem(`video_${videoId}`)
+    loadVideos()
+  }
 
   const generateWeeklyCalendar = () => {
     const today = new Date()
@@ -148,9 +157,9 @@ export default function Home() {
               <h2 className="text-xl font-bold mb-4">My Created Videos</h2>
               <div className="space-y-2">
                 {savedVideos.map((video) => (
-                  <Link key={video.id} href={`/video/${video.id}`}>
-                    <Card className="hover:bg-primary/5 transition-colors">
-                      <CardContent className="p-4 flex items-center justify-between">
+                  <Card key={video.id} className="hover:bg-primary/5 transition-colors">
+                    <CardContent className="p-4 flex items-center justify-between gap-3">
+                      <Link href={`/video/${video.id}`} className="flex-1 flex items-center gap-3">
                         <div className="flex-1">
                           <h3 className="font-medium mb-1">{video.title}</h3>
                           <p className="text-xs text-muted-foreground">
@@ -158,9 +167,22 @@ export default function Home() {
                           </p>
                         </div>
                         <Play className="h-6 w-6 text-primary" />
-                      </CardContent>
-                    </Card>
-                  </Link>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          if (confirm('このビデオを削除しますか？')) {
+                            deleteVideo(video.id)
+                          }
+                        }}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             </section>

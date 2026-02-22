@@ -15,6 +15,14 @@ interface GenerateVideoRequest {
   speed: string
 }
 
+const poseNames: Record<string, string> = {
+  lotus: 'Lotus Position',
+  seiza: 'Seiza',
+  standing: 'Standing Zen',
+  walking: 'Walking Meditation',
+  lying: 'Lying Down'
+}
+
 const poseDescriptions: Record<string, string> = {
   lotus: 'Sit in lotus position with your back straight and hands resting on your knees',
   seiza: 'Sit in seiza position with your back straight and hands on your thighs',
@@ -228,9 +236,11 @@ export async function POST(request: NextRequest) {
 
     const videoId = Date.now()
     
+    const poseName = poseNames[pose] || pose
+    
     const videoData = {
       id: videoId,
-      title: `Custom Zen Video - ${pose}`,
+      title: `Custom Zen Video - ${poseName}`,
       musicGenre,
       pose,
       difficulty,
