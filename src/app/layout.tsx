@@ -8,6 +8,18 @@ export const metadata: Metadata = {
   icons: {
     icon: '/ZenGauge_icon.png',
   },
+  openGraph: {
+    title: 'ZenGauge - Find Your Inner Peace',
+    description: 'Personalized zen meditation app',
+    images: ['/ZenGauge_icon.png'],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ZenGauge - Find Your Inner Peace',
+    description: 'Personalized zen meditation app',
+    images: ['/ZenGauge_icon.png'],
+  },
 }
 
 export default function RootLayout({
