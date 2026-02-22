@@ -216,9 +216,10 @@ async function generateAudio(text: string): Promise<string> {
 
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json()
+    
     // Check if running on Vercel production
     if (process.env.VERCEL_ENV === 'production') {
-      const body = await request.json()
       const adminPassword = body.adminPassword
       
       if (adminPassword !== '!ZenGauge!') {
@@ -229,7 +230,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const body: GenerateVideoRequest = await request.json()
     const { musicGenre, pose, difficulty, gender, age, location, speed } = body
 
     console.log('Generate video request:', { musicGenre, pose, difficulty })

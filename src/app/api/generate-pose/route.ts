@@ -4,9 +4,10 @@ const MINIMAX_API_KEY = process.env.NEXT_PUBLIC_MINIMAX_API_KEY
 
 export async function POST(request: NextRequest) {
   try {
+    const body = await request.json()
+    
     // Check if running on Vercel production
     if (process.env.VERCEL_ENV === 'production') {
-      const body = await request.json()
       const adminPassword = body.adminPassword
       
       if (adminPassword !== '!ZenGauge!') {
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const { pose } = await request.json()
+    const { pose } = body
     console.log('Generating pose silhouette for:', pose)
 
     if (!MINIMAX_API_KEY) {
