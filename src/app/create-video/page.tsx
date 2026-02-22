@@ -22,6 +22,8 @@ export default function CreateVideoPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
   const [status, setStatus] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
 
   const handleGenerate = async () => {
     if (!musicGenre || !pose || !difficulty || !gender || !age || !location || !speed) return
@@ -37,12 +39,16 @@ export default function CreateVideoPage() {
       const response = await fetch('/api/generate-video', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ musicGenre, pose, difficulty, gender, age, location, speed })
+        body: JSON.stringify({ musicGenre, pose, difficulty, gender, age, location, speed, adminPassword })
       })
 
       const data = await response.json()
       
       if (!response.ok) {
+        if (data.requiresPassword) {
+          setShowPasswordPrompt(true)
+          setStatus('')
+        }
         throw new Error(data.error || 'Failed to generate video')
       }
 
@@ -196,6 +202,19 @@ export default function CreateVideoPage() {
                   </>
                 )}
               </Button>
+
+              {showPasswordPrompt && (
+                <div className="space-y-2">
+                  <Label>Admin Password</Label>
+                  <input
+                    type="password"
+                    value={adminPassword}
+                    onChange={(e) => setAdminPassword(e.target.value)}
+                    placeholder="Enter admin password"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+              )}
 
               {isGenerating && (
                 <div className="space-y-2">

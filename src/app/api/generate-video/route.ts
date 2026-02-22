@@ -218,10 +218,15 @@ export async function POST(request: NextRequest) {
   try {
     // Check if running on Vercel production
     if (process.env.VERCEL_ENV === 'production') {
-      return NextResponse.json(
-        { error: 'This feature is available to administrators only! Because it costs $1 to generate a 3-second video with MINIMAX.' },
-        { status: 403 }
-      )
+      const body = await request.json()
+      const adminPassword = body.adminPassword
+      
+      if (adminPassword !== '!ZenGauge!') {
+        return NextResponse.json(
+          { error: 'This feature is available to administrators only! Because it costs $1 to generate a 3-second video with MINIMAX.', requiresPassword: true },
+          { status: 403 }
+        )
+      }
     }
 
     const body: GenerateVideoRequest = await request.json()

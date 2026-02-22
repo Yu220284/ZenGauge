@@ -20,6 +20,8 @@ export default function ZenPosePage() {
   const [silhouetteUrl, setSilhouetteUrl] = useState<string | null>(null)
   const [cameraActive, setCameraActive] = useState(false)
   const [cameraError, setCameraError] = useState('')
+  const [adminPassword, setAdminPassword] = useState('')
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -30,6 +32,11 @@ export default function ZenPosePage() {
 
     const initCamera = async () => {
       try {
+        if (typeof window === 'undefined' || !navigator.mediaDevices) {
+          setCameraError('Camera not available in this environment')
+          return
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'user' }
         })
@@ -84,7 +91,7 @@ export default function ZenPosePage() {
       const response = await fetch('/api/generate-pose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pose: pose.name }),
+        body: JSON.stringify({ pose: pose.name, adminPassword }),
       })
 
       console.log('Response status:', response.status)
@@ -92,6 +99,13 @@ export default function ZenPosePage() {
       console.log('Response data:', data)
 
       if (!response.ok) {
+        if (data.requiresPassword) {
+          setShowPasswordPrompt(true)
+          setLoading(false)
+          setLoadingMessage('')
+          alert(data.error)
+          return
+        }
         throw new Error(data.error || 'Failed to generate pose')
       }
 
@@ -183,6 +197,18 @@ export default function ZenPosePage() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">ZenGauge Pose Guide</h1>
           <p className="text-muted-foreground">Select a pose to begin your practice</p>
+          {showPasswordPrompt && (
+            <div className="mt-4 p-4 bg-yellow-50 rounded-lg max-w-md mx-auto">
+              <label className="block text-sm font-medium mb-2">Admin Password</label>
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="Enter admin password"
+                className="w-full px-3 py-2 border rounded-md"
+              />
+            </div>
+          )}
           {loading && (
             <div className="mt-4 p-4 bg-blue-50 rounded-lg">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-primary" />
