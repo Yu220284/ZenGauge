@@ -205,136 +205,164 @@ export default function VideoPage() {
         <audio ref={audioRef} src={video.audioUrl} preload="auto" />
       )}
       
-      <div className="relative h-full w-full">
-        {video.imageUrl && !isFullscreen ? (
-          <Image
-            src={video.imageUrl}
-            alt={video.title}
-            fill
-            className="object-cover scale-110 blur-xl"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 to-blue-100" />
-        )}
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
-
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <Card className={`w-full bg-card/80 backdrop-blur-lg border-white/20 shadow-2xl ${isFullscreen ? 'max-w-full h-full' : 'max-w-md'}`}>
-          <div className="p-6 space-y-4 h-full flex flex-col">
-            <div className={`relative w-full rounded-lg overflow-hidden bg-black ${isFullscreen ? 'flex-1' : 'aspect-video mb-4'}`}>
-              {video.videoUrl && video.videoUrl !== '' ? (
-                <video
-                  ref={videoRef}
-                  key={video.videoUrl}
-                  className="w-full h-full object-cover"
-                  preload="auto"
-                  playsInline
-                  muted={video.audioUrl ? true : isMuted}
-                >
-                  <source src={video.videoUrl} type="video/mp4" />
-                </video>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-white">
-                  <p>No video URL available. Generating video...</p>
-                </div>
-              )}
-            </div>
-
-            <div className="text-center">
-              <h1 className="text-2xl font-bold">{video.title}</h1>
-              {video.pose && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {video.pose} - {video.difficulty}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Slider
-                value={[currentTime]}
-                max={duration}
-                onValueChange={handleSliderChange}
-                className="cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-muted-foreground font-mono">
-                <span>{formatTime(currentTime)}</span>
-                <span>-{formatTime(duration - currentTime)}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => seek(-10)}
-                className="h-16 w-16"
-              >
-                <Rewind className="h-7 w-7" />
-              </Button>
-              <Button
-                variant="default"
-                onClick={togglePlay}
-                className="h-20 w-20 rounded-full shadow-lg"
-              >
-                {isPlaying ? <Pause className="h-10 w-10" /> : <Play className="h-10 w-10" />}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => seek(10)}
-                className="h-16 w-16"
-              >
-                <FastForward className="h-7 w-7" />
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={toggleMute}
-                className="h-12 w-12"
-              >
-                {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
-              </Button>
-              <Slider
-                value={[volume]}
-                min={0}
-                max={1}
-                step={0.01}
-                onValueChange={handleVolumeChange}
-                className="cursor-pointer flex-1"
-              />
-              <Button
-                variant="ghost"
-                onClick={handleShare}
-                className="h-12 w-12"
-                title="Share video"
-              >
-                <Share2 className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={toggleFullscreen}
-                className="h-12 w-12"
-              >
-                {isFullscreen ? <Minimize className="h-6 w-6" /> : <Maximize className="h-6 w-6" />}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => router.push('/')}
-                className="h-12 w-12"
-              >
-                <X className="h-6 w-6" />
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {showShareToast && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg">
-          Link copied to clipboard!
+      {isFullscreen ? (
+        <div className="relative h-full w-full">
+          <video
+            ref={videoRef}
+            key={video.videoUrl}
+            className="w-full h-full object-contain"
+            preload="auto"
+            playsInline
+            muted={video.audioUrl ? true : isMuted}
+            onClick={togglePlay}
+          >
+            <source src={video.videoUrl} type="video/mp4" />
+          </video>
+          <Button
+            variant="ghost"
+            onClick={toggleFullscreen}
+            className="absolute top-4 right-4 h-12 w-12 bg-black/50 hover:bg-black/70"
+          >
+            <Minimize className="h-6 w-6 text-white" />
+          </Button>
         </div>
+      ) : (
+      ) : (
+        <>
+          <div className="relative h-full w-full">
+            {video.imageUrl ? (
+              <Image
+                src={video.imageUrl}
+                alt={video.title}
+                fill
+                className="object-cover scale-110 blur-xl"
+                priority
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-100 to-blue-100" />
+            )}
+            <div className="absolute inset-0 bg-black/40" />
+          </div>
+
+          <div className="absolute inset-0 flex items-center justify-center p-4">
+            <Card className="w-full max-w-md bg-card/80 backdrop-blur-lg border-white/20 shadow-2xl">
+              <div className="p-6 space-y-4">
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black">
+                  {video.videoUrl && video.videoUrl !== '' ? (
+                    <video
+                      ref={videoRef}
+                      key={video.videoUrl}
+                      className="w-full h-full object-cover"
+                      preload="auto"
+                      playsInline
+                      muted={video.audioUrl ? true : isMuted}
+                    >
+                      <source src={video.videoUrl} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white">
+                      <p>No video URL available. Generating video...</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold">{video.title}</h1>
+                  {video.pose && (
+                    <p className="text-sm text-muted-foreground mt-2">
+                      {video.pose} - {video.difficulty}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Slider
+                    value={[currentTime]}
+                    max={duration}
+                    onValueChange={handleSliderChange}
+                    className="cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground font-mono">
+                    <span>{formatTime(currentTime)}</span>
+                    <span>-{formatTime(duration - currentTime)}</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-center items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    onClick={() => seek(-10)}
+                    className="h-16 w-16"
+                  >
+                    <Rewind className="h-7 w-7" />
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={togglePlay}
+                    className="h-20 w-20 rounded-full shadow-lg"
+                  >
+                    {isPlaying ? <Pause className="h-10 w-10" /> : <Play className="h-10 w-10" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => seek(10)}
+                    className="h-16 w-16"
+                  >
+                    <FastForward className="h-7 w-7" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="ghost"
+                    onClick={toggleMute}
+                    className="h-12 w-12"
+                  >
+                    {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+                  </Button>
+                  <Slider
+                    value={[volume]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onValueChange={handleVolumeChange}
+                    className="cursor-pointer flex-1"
+                  />
+                  <Button
+                    variant="ghost"
+                    onClick={handleShare}
+                    className="h-12 w-12"
+                    title="Share video"
+                  >
+                    <Share2 className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={toggleFullscreen}
+                    className="h-12 w-12"
+                  >
+                    <Maximize className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={() => router.push('/')}
+                    className="h-12 w-12"
+                  >
+                    <X className="h-6 w-6" />
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {showShareToast && (
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg">
+              Link copied to clipboard!
+            </div>
+          )}
+        </>
+      )}
+
       )}
     </div>
   )
