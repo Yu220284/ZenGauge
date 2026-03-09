@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Header } from '@/components/layout/Header'
 import { Card, CardContent } from '@/components/ui/card'
@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress'
 
 export default function CreateVideoPage() {
   const router = useRouter()
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [musicGenre, setMusicGenre] = useState('')
   const [pose, setPose] = useState('')
   const [difficulty, setDifficulty] = useState('')
@@ -25,21 +26,47 @@ export default function CreateVideoPage() {
   const [adminPassword, setAdminPassword] = useState('')
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
 
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [])
+
   const handleGenerate = async () => {
     if (!musicGenre || !pose || !difficulty || !gender || !age || !location || !speed) return
 
-    // Check cache first
     const cacheKey = `video_cache_${musicGenre}_${pose}_${difficulty}_${gender}_${age}_${location}_${speed}`
+    console.log('Cache key:', cacheKey)
     const cached = localStorage.getItem(cacheKey)
+    console.log('Cached data:', cached)
     if (cached) {
       const cachedData = JSON.parse(cached)
-      router.push(`/video/${cachedData.videoId}`)
+      setIsGenerating(true)
+      setProgress(0)
+      setStatus('Loading existing video...')
+      
+      const duration = 3000
+      const steps = 30
+      const increment = 100 / steps
+      const interval = duration / steps
+      
+      let step = 0
+      timerRef.current = setInterval(() => {
+        step++
+        setProgress(Math.min(step * increment, 100))
+        
+        if (step >= steps) {
+          if (timerRef.current) clearInterval(timerRef.current)
+          router.push(`/video/${cachedData.videoId}`)
+        }
+      }, interval)
+      
       return
     }
 
-    setIsGenerating(true)
-    setProgress(10)
-    setStatus('Generating script...')
+    console.log('No cache found, would generate new video - STOPPING FOR TEST')
+    alert('TEST MODE: Would generate new video but stopped for testing')
+    return
     
     try {
       setProgress(20)
@@ -67,10 +94,7 @@ export default function CreateVideoPage() {
         setProgress(100)
         setStatus('Complete!')
         localStorage.setItem(`video_${data.videoId}`, JSON.stringify(data.videoData))
-        // Save cache
-        const cacheKey = `video_cache_${musicGenre}_${pose}_${difficulty}_${gender}_${age}_${location}_${speed}`
         localStorage.setItem(cacheKey, JSON.stringify({ videoId: data.videoId }))
-        // Automatically redirect to video page
         router.push(`/video/${data.videoId}`)
       } else {
         throw new Error('Invalid response from server')
@@ -121,7 +145,7 @@ export default function CreateVideoPage() {
                     <SelectItem value="seiza">Seiza</SelectItem>
                     <SelectItem value="standing">Standing Zen</SelectItem>
                     <SelectItem value="walking">Walking Meditation</SelectItem>
-                    <SelectItem value="lying">Lying Down</SelectItem>
+                    <SelectItem value="lying-down">Lying Down</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -9,6 +9,7 @@ import { Play, Flame, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { DEFAULT_VIDEOS } from '@/lib/defaultVideos'
 
 export default function Home() {
   const [savedVideos, setSavedVideos] = useState<any[]>([])
@@ -19,9 +20,20 @@ export default function Home() {
       const key = localStorage.key(i)
       if (key?.startsWith('video_')) {
         const video = JSON.parse(localStorage.getItem(key)!)
-        videos.push(video)
+        videos.push({ ...video, _key: key })
       }
     }
+    
+    if (videos.length === 0) {
+      DEFAULT_VIDEOS.forEach(video => {
+        const key = `video_${video.id}`
+        localStorage.setItem(key, JSON.stringify(video))
+        const cacheKey = `video_cache_${video.musicGenre.toLowerCase()}_${video.pose.toLowerCase().replace(/ /g, '-')}_${video.difficulty.toLowerCase()}_${video.gender.toLowerCase()}_${video.age.toLowerCase()}_${video.location.toLowerCase().replace(/ /g, '-')}_${video.speed.toLowerCase()}`
+        localStorage.setItem(cacheKey, JSON.stringify({ videoId: video.id }))
+        videos.push({ ...video, _key: key })
+      })
+    }
+    
     videos.sort((a, b) => b.id - a.id)
     setSavedVideos(videos)
   }
@@ -167,7 +179,7 @@ export default function Home() {
               <h2 className="text-xl font-bold mb-4">My Created Videos</h2>
               <div className="space-y-2">
                 {savedVideos.map((video) => (
-                  <Card key={video.id} className="hover:bg-primary/5 transition-colors">
+                  <Card key={video._key || video.id} className="hover:bg-primary/5 transition-colors">
                     <CardContent className="p-4 flex items-center justify-between gap-3">
                       <Link href={`/video/${video.id}`} className="flex-1 flex items-center gap-3">
                         <div className="flex-1">

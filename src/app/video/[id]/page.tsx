@@ -8,16 +8,6 @@ import { Slider } from '@/components/ui/slider'
 import { Play, Pause, Volume2, VolumeX, X, Rewind, FastForward, Maximize, Minimize, Share2 } from 'lucide-react'
 import Image from 'next/image'
 
-const videos = [
-  { 
-    id: 1, 
-    title: 'Morning Meditation Video', 
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    imageUrl: 'https://picsum.photos/seed/video1/800/450',
-    audioUrl: ''
-  }
-]
-
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
   const secs = Math.floor(seconds % 60)
@@ -50,13 +40,7 @@ export default function VideoPage() {
     
     if (storedVideo) {
       const parsedVideo = JSON.parse(storedVideo)
-      if (!parsedVideo.videoUrl || parsedVideo.videoUrl === '') {
-        parsedVideo.videoUrl = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
-      }
       setVideo(parsedVideo)
-    } else {
-      const defaultVideo = videos.find(v => v.id === videoId)
-      if (defaultVideo) setVideo(defaultVideo)
     }
   }, [params.id])
 
@@ -151,10 +135,14 @@ export default function VideoPage() {
       } catch (err) {
         console.log('Share cancelled')
       }
-    } else {
-      await navigator.clipboard.writeText(shareUrl)
-      setShowShareToast(true)
-      setTimeout(() => setShowShareToast(false), 3000)
+    } else if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(shareUrl)
+        setShowShareToast(true)
+        setTimeout(() => setShowShareToast(false), 3000)
+      } catch (err) {
+        console.error('Failed to copy:', err)
+      }
     }
   }
 
@@ -165,6 +153,14 @@ export default function VideoPage() {
     const updateTime = () => setCurrentTime(videoEl.currentTime)
     const onPlay = () => setIsPlaying(true)
     const onPause = () => setIsPlaying(false)
+    const onEnded = () => {
+      localStorage.setItem('last_session', JSON.stringify({
+        title: video.title,
+        duration: Math.floor(duration),
+        completedAt: new Date().toISOString()
+      }))
+      router.push('/session/result')
+    }
     const onLoadedMetadata = () => {
       setDuration(videoEl.duration)
       setIsPlaying(!videoEl.paused)
@@ -173,6 +169,7 @@ export default function VideoPage() {
     videoEl.addEventListener('timeupdate', updateTime)
     videoEl.addEventListener('play', onPlay)
     videoEl.addEventListener('pause', onPause)
+    videoEl.addEventListener('ended', onEnded)
     videoEl.addEventListener('loadedmetadata', onLoadedMetadata)
 
     if (videoEl.readyState >= 1) {
@@ -184,9 +181,10 @@ export default function VideoPage() {
       videoEl.removeEventListener('timeupdate', updateTime)
       videoEl.removeEventListener('play', onPlay)
       videoEl.removeEventListener('pause', onPause)
+      videoEl.removeEventListener('ended', onEnded)
       videoEl.removeEventListener('loadedmetadata', onLoadedMetadata)
     }
-  }, [video])
+  }, [video, router])
 
   if (!video) {
     return (

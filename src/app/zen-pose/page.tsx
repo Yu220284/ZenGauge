@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { ArrowLeft, Loader2 } from 'lucide-react'
@@ -14,6 +15,7 @@ const POSES = [
 ]
 
 export default function ZenPosePage() {
+  const router = useRouter()
   const [selectedPose, setSelectedPose] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState('')
@@ -23,6 +25,7 @@ export default function ZenPosePage() {
   const [adminPassword, setAdminPassword] = useState('')
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const silhouetteVideoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
     if (!cameraActive) return
@@ -62,6 +65,7 @@ export default function ZenPosePage() {
   }, [cameraActive])
 
   const generatePose = async (pose: any) => {
+    setSelectedPose(pose.name)
     // Check localStorage cache first
     const cacheKey = `pose_${pose.id}`
     const cached = typeof window !== 'undefined' ? localStorage.getItem(cacheKey) : null
@@ -138,11 +142,12 @@ export default function ZenPosePage() {
             <div className="flex-1 relative rounded-lg overflow-hidden">
               <p className="absolute top-2 left-2 text-white text-sm font-bold z-10 bg-black/50 px-2 py-1 rounded">AI Silhouette</p>
               <video
+                ref={silhouetteVideoRef}
                 src={silhouetteUrl}
                 autoPlay
-                loop
                 muted
                 playsInline
+                loop
                 className="w-full h-full object-contain bg-white"
               />
             </div>
@@ -169,10 +174,22 @@ export default function ZenPosePage() {
 
           <Button
             onClick={() => {
+              const videoEl = silhouetteVideoRef.current
+              const duration = videoEl ? Math.floor(videoEl.currentTime) : 0
+              const logId = `workout_log_${Date.now()}`
+              const logData = {
+                id: logId,
+                title: selectedPose || 'Zen Pose',
+                duration,
+                completedAt: new Date().toISOString()
+              }
+              localStorage.setItem(logId, JSON.stringify(logData))
+              localStorage.setItem('last_session', JSON.stringify(logData))
               setCameraActive(false)
               setSilhouetteUrl(null)
               setSelectedPose(null)
               setCameraError('')
+              router.push('/session/result')
             }}
             className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
             variant="secondary"

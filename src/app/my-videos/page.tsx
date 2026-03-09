@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Play, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { DEFAULT_VIDEOS } from '@/lib/defaultVideos'
 
 export default function MyVideosPage() {
   const router = useRouter()
@@ -48,9 +49,19 @@ export default function MyVideosPage() {
       if (key?.startsWith('video_')) {
         const video = JSON.parse(localStorage.getItem(key)!)
         console.log('Loaded video:', video)
-        allVideos.push(video)
+        allVideos.push({ ...video, _key: key })
       }
     }
+    
+    // Add default videos if no videos exist
+    if (allVideos.length === 0) {
+      DEFAULT_VIDEOS.forEach(video => {
+        const key = `video_${video.id}`
+        localStorage.setItem(key, JSON.stringify(video))
+        allVideos.push({ ...video, _key: key })
+      })
+    }
+    
     console.log('Total videos:', allVideos.length)
     allVideos.sort((a, b) => b.id - a.id)
     setVideos(allVideos)
@@ -83,7 +94,7 @@ export default function MyVideosPage() {
           ) : (
             <div className="space-y-3">
               {videos.map((video) => (
-                <Card key={video.id} className="hover:bg-primary/5 transition-colors">
+                <Card key={video._key || video.id} className="hover:bg-primary/5 transition-colors">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
                       <Link href={`/video/${video.id}`} className="flex-1 min-w-0">

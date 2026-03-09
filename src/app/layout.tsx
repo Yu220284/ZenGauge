@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { AuthProvider } from '@/lib/auth/auth-context'
 
 export const metadata: Metadata = {
   title: 'ZenGauge - Find Your Inner Peace',
@@ -29,9 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

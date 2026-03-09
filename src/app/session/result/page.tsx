@@ -4,35 +4,67 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, Twitter, MessageCircle, Copy, Home } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function SessionResultPage() {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
-
-  const sessionData = {
-    title: 'Morning Meditation',
+  const [mounted, setMounted] = useState(false)
+  const [sessionData, setSessionData] = useState({
+    title: 'Meditation Session',
     duration: 600,
     completedAt: new Date()
-  }
+  })
+
+  useEffect(() => {
+    setMounted(true)
+    const stored = localStorage.getItem('last_session')
+    if (stored) {
+      const data = JSON.parse(stored)
+      setSessionData({
+        title: data.title,
+        duration: data.duration,
+        completedAt: new Date(data.completedAt)
+      })
+      localStorage.removeItem('last_session')
+    }
+  }, [])
 
   const minutes = Math.floor(sessionData.duration / 60)
   const shareText = `I just completed a ${minutes}-minute ${sessionData.title} session on ZenGauge! 🧘♀️✨`
 
   const handleShare = async (platform: 'twitter' | 'line' | 'copy') => {
+    const shareUrl = `${window.location.origin}/session/result`
+    
     if (platform === 'twitter') {
-      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`
+      const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
       window.open(url, '_blank')
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareUrl)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        } catch (error) {}
+      }
     } else if (platform === 'line') {
-      const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(window.location.origin)}&text=${encodeURIComponent(shareText)}`
+      const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
       window.open(url, '_blank')
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareUrl)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        } catch (error) {}
+      }
     } else if (platform === 'copy') {
-      try {
-        await navigator.clipboard.writeText(shareText)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      } catch (error) {
-        console.error('Failed to copy:', error)
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(shareUrl)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
+        } catch (error) {
+          console.error('Failed to copy:', error)
+        }
       }
     }
   }
@@ -59,7 +91,7 @@ export default function SessionResultPage() {
             </div>
             <div className="flex items-center justify-between text-sm mt-2">
               <span className="text-muted-foreground">Completed</span>
-              <span className="font-medium">{sessionData.completedAt.toLocaleTimeString()}</span>
+              <span className="font-medium">{mounted ? sessionData.completedAt.toLocaleTimeString() : '--:--:--'}</span>
             </div>
           </div>
 

@@ -20,7 +20,7 @@ const poseNames: Record<string, string> = {
   seiza: 'Seiza',
   standing: 'Standing Zen',
   walking: 'Walking Meditation',
-  lying: 'Lying Down'
+  'lying-down': 'Lying Down'
 }
 
 const poseDescriptions: Record<string, string> = {
@@ -28,7 +28,7 @@ const poseDescriptions: Record<string, string> = {
   seiza: 'Sit in seiza position with your back straight and hands on your thighs',
   standing: 'Stand with feet shoulder-width apart and arms naturally at your sides',
   walking: 'Walk slowly, bringing awareness to each step',
-  lying: 'Lie on your back, release all tension, and relax completely'
+  'lying-down': 'Lie on your back, release all tension, and relax completely'
 }
 
 const difficultyInstructions: Record<string, string> = {
@@ -247,7 +247,7 @@ export async function POST(request: NextRequest) {
     console.log('Generated video URL:', videoUrl)
     console.log('Generated audio URL length:', audioUrl.length)
 
-    const videoId = Date.now()
+    const videoId = `${musicGenre}_${pose}_${difficulty}_${gender}_${age}_${location}_${speed}`.replace(/[^a-z0-9_]/gi, '-').toLowerCase()
     
     const poseName = poseNames[pose] || pose
     
@@ -257,10 +257,15 @@ export async function POST(request: NextRequest) {
       musicGenre,
       pose,
       difficulty,
+      gender,
+      age,
+      location,
+      speed,
       script,
       audioUrl,
       videoUrl,
-      imageUrl: 'https://picsum.photos/seed/zen/800/450'
+      imageUrl: 'https://picsum.photos/seed/zen/800/450',
+      prompt: `${musicGenre} music, ${poseName}, ${difficulty} level, ${gender} in ${age}, ${location} setting, ${speed} pace`
     }
 
     console.log('Returning video data:', { ...videoData, audioUrl: audioUrl ? 'present' : 'empty' })

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Video, User, Users } from "lucide-react";
+import { Home, Video, User, ClipboardList } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BottomNav() {
@@ -11,7 +11,7 @@ export function BottomNav() {
   const navItems = [
     { href: "/my-videos", label: "Videos", icon: Video },
     { href: "/", label: "Home", icon: Home, isCentral: true },
-    { href: "/profile", label: "Profile", icon: User },
+    { href: "/workout-log", label: "Log", icon: ClipboardList },
   ];
 
   return (
